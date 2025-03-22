@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="heart_transparent.png" type="image/x-icon">
+  <title>Feliz Aniversário Minha Linda!</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #ffdde1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      z-index: 10;
+      max-width: 90%;
+    }
+
+    h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 50px;
+      color: #ff4081;
+      text-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+      animation: bounce 2s infinite;
+    }
+
+    p {
+      font-size: 22px;
+      color: #d81b60;
+      font-family: Arial, sans-serif;
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      font-size: 20px;
+      padding: 15px 30px;
+      margin-top: 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      animation: pulse 1.5s infinite;
+    }
+
+    button:hover {
+      background-color: #d81b60;
+      transform: scale(1.1);
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .balloon {
+      position: absolute;
+      width: 60px;
+      height: 80px;
+      background-color: #ffcc00;
+      border-radius: 50%;
+      animation: float 4s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh); }
+      100% { transform: translateY(-120vh); }
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    #finalMessage {
+      font-size: 24px;
+      color: #e91e63;
+      font-family: 'Pacifico', cursive;
+      display: none;
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="message">Feliz Aniversário, Minha Linda!</h1>
+    <p>Que teu dia seja cheio de sorrisos e alegrias.<br>
+       Que cada sonho se realize, e a felicidade te acompanhe sempre!</p>
+    <button onclick="startCelebration()">Começar Celebração</button>
+    <div id="finalMessage">Obrigado por compartilhar esse momento especial comigo! Te amo muito!</div>
+  </div>
+  
+  <canvas id="confetti"></canvas>
+  <audio id="bg-music" src="https://www.bensound.com/bensound-music/bensound-ukulele.mp3" loop></audio>
+
+  <script>
+    function startCelebration() {
+      createBalloons();
+      startConfetti();
+      document.getElementById('bg-music').play();
+      setTimeout(showFinalMessage, 18000); // Exibe a mensagem final após 18 segundos
+      setTimeout(endCelebration, 20000); // Acaba a apresentação após 20 segundos
+    }
+
+    function createBalloons() {
+      for (let i = 0; i < 5; i++) {  // Reduzindo para 5 balões
+        const balloon = document.createElement('div');
+        balloon.classList.add('balloon');
+        balloon.style.left = `${Math.random() * 100}vw`;
+        balloon.style.backgroundColor = getRandomColor();
+        balloon.style.animationDuration = `${Math.random() * 2 + 2}s`;
+        document.body.appendChild(balloon);
+
+        balloon.addEventListener('animationend', () => {
+          balloon.remove();
+        });
+      }
+    }
+
+    function getRandomColor() {
+      const colors = ['#ff4081', '#ffcc00', '#00bcd4', '#8bc34a', '#e91e63'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function startConfetti() {
+      const canvas = document.getElementById('confetti');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const confettiPieces = Array.from({ length: 50 }, () => ({  // Reduzindo a quantidade de confetes
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 10 + 5,
+        color: getRandomColor(),
+        speedX: Math.random() * 4 - 2,
+        speedY: Math.random() * 4 + 2,
+        rotation: Math.random() * 360,
+      }));
+
+      function drawConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        confettiPieces.forEach(p => {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+
+          p.x += p.speedX;
+          p.y += p.speedY;
+          p.rotation += 4;
+
+          if (p.y > canvas.height) p.y = 0;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.x < 0) p.x = canvas.width;
+        });
+
+        requestAnimationFrame(drawConfetti);
+      }
+
+      drawConfetti();
+    }
+
+    function showFinalMessage() {
+      const finalMessage = document.getElementById('finalMessage');
+      finalMessage.style.display = 'block';
+      setTimeout(() => {
+        finalMessage.style.opacity = 1; // Animação suave
+      }, 100);
+    }
+
+    function endCelebration() {
+      document.getElementById('bg-music').pause();  // Pausa a música após 20 segundos
+    }
+  </script>
+</body>
+</html>
